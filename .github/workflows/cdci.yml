@@ -1,0 +1,73 @@
+---
+name: Skeleton CI + CD main pipline
+
+# define workflow
+
+on: 
+  push:
+    branches: [main] 
+  pull_request:
+    branches: [main, '*-develop-*'] 
+  workflow_dispatch:
+
+# define some jobs 
+
+jobs: 
+  Build: 
+    runs-on: ubuntu-latest
+    steps: 
+    - uses: actions/checkout@v3
+    - name: Compile
+      run: echo Imagine we are compiling our code here!
+  Linter: 
+    needs: [Build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+        # Full git history is needed `super-linter`
+          fetch-depth: 0
+      - name: Lint Code Base
+        uses: github/super-linter@v4
+        env:
+          FILTER_REGEX_EXCLUDE: /github/workspace/README.md
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+
+  DeployDev:
+    name: Deploy to development
+    if: github.event_name == 'pull_request'
+    needs: [Linter]
+    runs-on: ubuntu-latest
+    environment:
+      name : Development
+      url: 'http://dev.myapp.com'
+    steps: 
+    - name: Deploy
+      run: echo you code is being deployed to http://dev.myapp.com!
+
+#our deployment to staging 
+  DeployStaging: 
+    name: Deploy to staging environment 
+    if: github.event.ref == 'refs/heads/main' 
+    needs: [Linter]
+    runs-on: ubuntu-latest
+    environment:
+      name: Staging
+      url: 'http://testing.myapp.com'
+    steps: 
+    - name: Deploy
+      run: echo you code is being deployed to http://test.myapp.com!
+
+#our deployment to  production
+  DeployProduction: 
+    name: Deploy to production
+    needs: [DeployStaging]
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: 'http://www.myapp.com'
+    steps: 
+    - name: Deploy
+      run: echo you code is being deployed to http://www.myapp.com! 
