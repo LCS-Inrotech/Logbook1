@@ -71,3 +71,8 @@ jobs:
     steps: 
     - name: Deploy
       run: echo you code is being deployed to http://www.myapp.com! 
+    - uses: ncipollo/release-action@v1  #release versions test
+      with: 
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{github.run_number}}
+          name: Release v${{github.run_number}} 
