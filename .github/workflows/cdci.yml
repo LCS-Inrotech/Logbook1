@@ -73,6 +73,12 @@ jobs:
       run: echo you code is being deployed to http://www.myapp.com! 
     - uses: ncipollo/release-action@v1  #release versions test
       with: 
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{github.run_number}}
-          name: Release v${{github.run_number}} 
+       token: ${{ secrets.GITHUB_TOKEN }}
+       tag: v${{github.run_number}}
+      name: Release v${{github.run_number}} 
+    - uses: actions/checkout@v2
+    - uses: opsless/ms-teams-github-actions@main
+      if: always() # to let this step always run even if previous step failed
+      with:
+          github-token: ${{ github.token }}
+          webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
