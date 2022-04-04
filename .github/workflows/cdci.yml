@@ -34,22 +34,11 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  labelWhenApproved:
-    name: Label Pull Request when approved
-    runs-on: ubuntu-latest
-    steps:
-    - name: Label Pull Request when approved
-      uses: pullreminders/label-when-approved-action@master
-      env:
-        APPROVALS: "1"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ADD_LABEL: "approved"
-        #REMOVE_LABEL: "awaiting%20review"
 
   DeployDev:
     name: Deploy to development
     if: github.event_name == 'pull_request'
-    needs: [Linter,labelWhenApproved]
+    needs: [Linter]
     runs-on: ubuntu-latest
     environment:
       name : Development
